@@ -1,0 +1,31 @@
+opam-version: "2.0"
+version: "0.0.1"
+synopsis: "Nerode: A library for manipulating Finite Automata and Regular Expressions"
+maintainer: "jnfoster@cs.cornell.edu"
+authors: ["Mark Moeller <moeller@cs.cornell.edu>"
+          "Nate Foster <jnfoster@cs.cornell.edu>"
+          "Alexandra Silva <alexandra.silva@cornell.edu>"
+          "Alaia Solko-Breslin <alaia@seas.upenn.edu>"
+          "Caleb Koch <ckoch@stanford.edu>"]
+homepage: "https://github.com/cornell-pl/nerode-public"
+dev-repo: "git+https://github.com/cornell-pl/nerode-public"
+bug-reports: "https://github.com/cornell-pl/nerode-public"
+license: "Apache2"
+build: [
+  ["dune" "subst"] {pinned}
+  ["dune" "build" "-p" name "-j" jobs]
+  ["dune" "runtest" "-p" name "-j" jobs] {with-test}
+  ["dune" "build" "@doc" "-p" name "-j" jobs] {with-doc}
+]
+depends: [
+  "ocaml" {>= "4.09.0"}
+  "alcotest"
+  "dune" {>= "1.2"}
+  "core" {>= "0.13.0"}
+  "ppx_deriving_yojson"
+  "ppx_jane" {>= "0.13.0" }
+  "ppx_js_style" {>= "0.13.0" }
+  "yojson" {>= "1.7.0"}
+  "nice_parser"
+  "menhir" {build & >= "20190626"}
+]

@@ -1,0 +1,5 @@
+(tests
+ (names test)
+ (libraries nerodelearn nerode ounit2)
+ (action
+  (run %{test})))

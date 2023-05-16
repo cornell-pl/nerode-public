@@ -1,0 +1,4 @@
+(tests
+  (names test)
+  (libraries nerode alcotest)
+  (action (run %{test} -e)))

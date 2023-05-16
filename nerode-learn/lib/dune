@@ -1,0 +1,11 @@
+(env
+ (dev
+  (flags
+   (:standard -warn-error -A))))
+
+(library
+ (name nerodelearn)
+ (public_name nerodelearn)
+ (libraries yojson core ounit2 nerode z3 ppxlib core_unix)
+ ; (preprocess (pps ppx_jane -allow-unannotated-ignores))
+ )

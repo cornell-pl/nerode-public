@@ -1,0 +1,15 @@
+(ocamllex (modules rx_lexer))
+(menhir (modules rx_parser))
+
+(env
+  (dev
+    (flags (:standard -warn-error -A))))
+
+(library
+  (name nerode)
+  (public_name nerode)
+  (libraries yojson nice_parser core))
+
+(documentation
+  (package nerode)
+  (mld_files :standard))

@@ -1,0 +1,9 @@
+hasNext hasNext next;+
+hasNext next hasNext next;+
+hasNext;+
+hasNext   next;+
+next;-
+next hasNext;-
+next next hasNext next;-
+next next next hasNext;-
+hasNext next next;-

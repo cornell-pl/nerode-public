@@ -1,0 +1,9 @@
+{0 nerode index}
+
+{1 Library nerode}
+Nerode is a library that provideds basic operations on Deterministic Finite Automata
+(DFAs), Nondeterministic Finite Automata (NFAs), and Regular Expressions,
+including conversions between the above.
+
+The entry point of this library is the module:
+{!module-Nerode}.
