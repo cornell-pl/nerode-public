@@ -10,7 +10,7 @@ authors: ["Mark Moeller <moeller@cs.cornell.edu>"
 homepage: "https://github.com/cornell-pl/nerode-public"
 dev-repo: "git+https://github.com/cornell-pl/nerode-public"
 bug-reports: "https://github.com/cornell-pl/nerode-public"
-license: "Apache2"
+license: "Apache-2.0"
 build: [
   ["dune" "subst"] {pinned}
   ["dune" "build" "-p" name "-j" jobs]
@@ -21,10 +21,10 @@ depends: [
   "ocaml" {>= "4.09.0"}
   "alcotest"
   "dune" {>= "1.2"}
-  "core" {>= "0.13.0"}
+  "core" {>= "v0.15" & <= "v0.15.0"}
   "ppx_deriving_yojson"
-  "ppx_jane" {>= "0.13.0" }
-  "ppx_js_style" {>= "0.13.0" }
+  "ppx_jane" {>= "v0.13" & <= "v0.15.0"}
+  "ppx_js_style" {>= "v0.13" & <= "v0.15.0"}
   "yojson" {>= "1.7.0"}
   "nice_parser"
   "menhir" {build & >= "20190626"}
