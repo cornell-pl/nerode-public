@@ -1,0 +1,49 @@
+name: Builds, tests & co
+
+on:
+  pull_request:
+  push:
+  schedule:
+    # Prime the caches every Monday
+    - cron: 0 1 * * MON
+
+permissions: read-all
+
+jobs:
+  build:
+    strategy:
+      fail-fast: true
+      matrix:
+        ocaml-compiler:
+          - "4.12"
+          - "5.1"
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v4
+
+      - name: Install Z3
+        uses: pavpanchekha/setup-z3@v1.3
+        with:
+          version: 4.12.2
+          architecture: x64
+          distribution: glibc-2.31
+
+      - name: Set-up OCaml ${{ matrix.ocaml-compiler }}
+        uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+      - run: cd nerode
+      - run: opam install . --deps-only --with-test
+      - run: opam exec -- dune build
+      - run: opam exec -- dune test
+      - run: opam exec -- dune install
+
+      - run: cd ../nerode-learn
+      - run: opam install . --deps-only --with-test
+      - run: opam pin add z3 https://github.com/mdmoeller/ocaml-z3.git
+      - run: opam exec -- dune build
+      - run: opam exec -- dune test
