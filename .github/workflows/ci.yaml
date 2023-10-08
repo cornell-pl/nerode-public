@@ -36,14 +36,26 @@ jobs:
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
-      - run: cd nerode
-      - run: opam install . --deps-only --with-test
-      - run: opam exec -- dune build
-      - run: opam exec -- dune test
-      - run: opam exec -- dune install
+      - name: Install dependencies (nerode)
+        working-directory: ./nerode
+        run: opam install . --deps-only --with-test
+      - name: Build (nerode)
+        working-directory: ./nerode
+        run: opam exec -- dune build
+      - name: Test (nerode)
+        working-directory: ./nerode
+        run: opam exec -- dune test
+      - name: Install (nerode)
+        working-directory: ./nerode
+        run: opam exec -- dune install
 
-      - run: cd ../nerode-learn
-      - run: opam install . --deps-only --with-test
-      - run: opam pin add z3 https://github.com/mdmoeller/ocaml-z3.git
-      - run: opam exec -- dune build
-      - run: opam exec -- dune test
+
+      - name: Install dependencies (nerode-learn)
+        working-directory: ./nerode-learn
+        run: opam install . --deps-only --with-test && opam pin add z3 https://github.com/mdmoeller/ocaml-z3.git
+      - name: Build (nerode-learn)
+        working-directory: ./nerode-learn
+        run: opam exec -- dune build
+      - name: Test (nerode-learn)
+        working-directory: ./nerode-learn
+        run: opam exec -- dune test
