@@ -80,7 +80,7 @@ let bv_of_t (t: Table.t) =
       let b = b_var n in
       let t = const b in
       declare_const solver (Id b) (BitVecSort 1);
-      WordHash.add_exn entries ~key:w ~data:t;
+      Hashtbl.add_exn entries ~key:w ~data:t;
       t in
 
     let () = WordSet.iter (fun w -> ignore (gensym (Word.to_symlist w))) (Table.get_blanks t) in
@@ -90,7 +90,7 @@ let bv_of_t (t: Table.t) =
       | True -> one
       | False -> zero
       | Blank ->
-         begin match WordHash.find entries w with
+         begin match Hashtbl.find entries w with
          | Some t -> t
          | None -> gensym w
          end) in
@@ -106,7 +106,7 @@ let bv_of_t (t: Table.t) =
         let term = term_of_entry w entry in
         let extract = extract j j (const row) in
         assert_ solver (equals term extract));
-    WordMap.set acc ~key:u ~data:(const row) in
+        Map.set acc ~key:u ~data:(const row) in
   
   let map_conv = List.map ~f:(fun (w,elst) -> (Word.to_symlist w, elst)) in
   let s_rows = List.foldi (map_conv (Table.up_rows_labels_entries t)) 
@@ -116,12 +116,12 @@ let bv_of_t (t: Table.t) =
   (s_rows, sa_rows, term_of_entry)
 
 let assert_disjoint s_rows sa_rows =
-  let terms = WordMap.to_alist s_rows |> List.map ~f:snd in
+  let terms = Map.to_alist s_rows |> List.map ~f:snd in
   assert_ solver (App (Id "distinct", terms))
 
 let assert_closed s_rows sa_rows =
-  let s_terms = WordMap.to_alist s_rows |> List.map ~f:snd in
-  let sa_terms = WordMap.to_alist sa_rows in
+  let s_terms = Map.to_alist s_rows |> List.map ~f:snd in
+  let sa_terms = Map.to_alist sa_rows in
   List.iter sa_terms ~f:(fun (s_i, sa_term) ->
       List.fold_left s_terms ~init:(bool_to_term false) ~f:(fun acc s_row -> or_ acc (equals sa_term s_row)) |>
       if CliOpt.unsat_cores_on () then
@@ -131,11 +131,11 @@ let assert_closed s_rows sa_rows =
 
 let assert_consistent alpha s_rows sa_rows =
   let lookup s =
-    match WordMap.find s_rows s with
-    | None -> WordMap.find_exn sa_rows s
+    match Map.find s_rows s with
+    | None -> Map.find_exn sa_rows s
     | Some term -> term in
 
-  let s = WordMap.to_alist s_rows |> List.map ~f:fst in
+  let s = Map.to_alist s_rows |> List.map ~f:fst in
   List.iteri s ~f:(fun i si ->
     List.iteri (List.filteri s ~f:(fun j _ -> j < i)) ~f:(fun j sj ->
       List.iter alpha ~f:(fun x ->
@@ -144,8 +144,8 @@ let assert_consistent alpha s_rows sa_rows =
         )))
 
 let min_rows s_rows sa_rows =
-  let lookup s = WordMap.find_exn s_rows s in
-  let s = WordMap.to_alist s_rows |> List.map ~f:fst in
+  let lookup s = Map.find_exn s_rows s in
+  let s = Map.to_alist s_rows |> List.map ~f:fst in
   let si_uniq s i si =
     let rows = List.filteri ~f:(fun j _ -> j < i) s in
     List.fold_left rows ~init:(bool_to_term true) ~f:(fun a r -> and_ a (not_ (equals (lookup r) (lookup si)))) in
@@ -172,19 +172,19 @@ let fill_blanks_asns (t: Table.t) assrt_lst =
   let () = real_z3_time := !real_z3_time +. (Core_unix.gettimeofday () -. start) in
 
   let get_results () = 
-        let results = Caml.Hashtbl.create 11 in
+        let results = Stdlib.Hashtbl.create 11 in
         List.iter (get_model solver) ~f:(fun (id, term) ->
         let var = Const (id) in
         let b = term |> term_to_sexp |> sexp_to_string in
         match b with
-        | "(_ bv1 1)" -> Caml.Hashtbl.add results var true
-        | "(_ bv0 1)" -> Caml.Hashtbl.add results var false
+        | "(_ bv1 1)" -> Stdlib.Hashtbl.add results var true
+        | "(_ bv0 1)" -> Stdlib.Hashtbl.add results var false
         | _ -> ());
         results in
   let add_lookup res w acc = 
     let open Table in
     let term = toe w Blank in
-    let entry = if Caml.Hashtbl.find res term then True else False in
+    let entry = if Stdlib.Hashtbl.find res term then True else False in
     CamlWordMap.add (Word.of_symlist w) entry acc in
 
   let blanks = Table.get_blanks t in
