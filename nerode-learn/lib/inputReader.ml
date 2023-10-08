@@ -10,7 +10,7 @@ module SS = Set.Make(String)
 let load_input fn =
   let get_ints s a =
     let (s', a') = String.fold s ~init:([],a) ~f:(fun (sl, a) x -> 
-                    ((String.make 1 x)::sl, SS.add a (String.make 1 x))) in
+                    ((String.make 1 x)::sl, Set.add a (String.make 1 x))) in
     (List.rev s', a') in
     
   let get_alt s a =
@@ -20,7 +20,7 @@ let load_input fn =
                 strs 
              else
                 List.filter strs ~f:(fun s -> String.length s <> 0) in
-    let a' = List.fold_left s' ~init:a ~f:(fun acc s -> SS.add acc s) in
+    let a' = List.fold_left s' ~init:a ~f:(fun acc s -> Set.add acc s) in
     (s', a') in
 
   let proc_line scan_str (p, n, a) line =
@@ -40,7 +40,7 @@ let load_input fn =
           List.fold_left lines ~init:([], [], SS.empty) ~f:(proc_line scan_str) in
 
   (* Remove "X" which has special meaning (wildcard) *)
-  let a_set' = SS.remove a_set "X" |> SS.elements  in
+  let a_set' = Set.remove a_set "X" |> Set.elements  in
   let alpha = if List.length a_set' = 0 then 
                 Alphabet.intalph 2
               else

@@ -31,8 +31,8 @@ let mk_teacher fn =
   *)
   TI.make pos neg 
 
-let teacher1 = mk_teacher "../../../ex/tomita_t1"
-let teacher3 = mk_teacher "../../../ex/tomita_t3"
+let teacher1 = mk_teacher "./tomita_t1"
+let teacher3 = mk_teacher "./tomita_t3"
 
 let alpha01 = Alphabet.intalph 2
 
