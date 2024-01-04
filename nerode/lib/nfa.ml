@@ -1,5 +1,5 @@
 type symbol = Alphabet.symbol
-type word = Alphabet.word
+type word = Word.t
 
 module type State = sig
   type t

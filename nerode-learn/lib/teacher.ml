@@ -3,7 +3,7 @@
 
 open Nerode
 
-type word = Alphabet.word
+type word = Word.t
 
 (** A finite set of words. *)
 module WordSet = Set.Make(struct

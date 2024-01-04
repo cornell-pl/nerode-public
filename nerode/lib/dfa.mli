@@ -1,7 +1,7 @@
 (** Representation of a Deterministic Finite Automaton (DFA) *)
 
 type symbol = Alphabet.symbol
-type word = Alphabet.word
+type word = Word.t
 
 (** DFA type. *)
 type t

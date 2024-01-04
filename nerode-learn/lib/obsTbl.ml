@@ -114,8 +114,8 @@ let add_col get_entry e_map (w: Word.t) (table: t) : t * entry TblMap.t =
 let add_cols get_entry e_map (new_cols: ColLabels.t) table = 
   ColLabels.fold (fun w (tblacc, em_acc) -> add_col get_entry em_acc w tblacc) new_cols (table, e_map)
 
-(**Initializes the 1x1 table with S and E as both just epsilon, 
-so the only entry is for the empty string*)
+(** Initializes the 1x1 table with S and E as both just epsilon, 
+    so the only entry is for the empty string. *)
 let init_epsilon alpha get_entry : t * entry TblMap.t = 
   let s : RowLabels.t = RowLabels.(empty |> add Word.epsilon) in
   let sa : RowLabels.t = rows_from_adding_letter alpha Word.epsilon in
@@ -128,8 +128,8 @@ let init_epsilon alpha get_entry : t * entry TblMap.t =
   col_labels = e; 
   tbl = tbl}, tbl
 
-(**[row_entries row table] returns a list of the entries in the row with 
-label [row] in [table]. If the row is not in the table, an error is raised*)
+(** [row_entries row table] returns a list of the entries in the row with 
+    label [row] in [table]. If the row is not in the table, an error is raised. *)
 let row_entries (row: Word.t) table : RowEntries.t =
   table.col_labels |> ColLabels.elements 
     |> List.map (fun col -> lookup_by_rowcol_opt row col table |> Option.get)
@@ -138,8 +138,9 @@ let rows_labels_entries rowlbls table : (Word.t*RowEntries.t) list =
   RowLabels.fold 
     (fun row acc -> (row, row_entries row table)::acc) rowlbls []
 
-(**[up_row_labels_entries table] returns a list, whose elements are a pair
-containing a row's label and a list of its entries, for each upper row in [table]*)
+(** [up_row_labels_entries table] returns a list, whose elements are a pair
+    containing a row's label and a list of its entries, for each upper row in
+    [table]. *)
 let up_rows_labels_entries table : (Word.t*RowEntries.t) list = 
   rows_labels_entries table.upper_row_labels table
 
@@ -231,7 +232,7 @@ let fill_blanks table (map: entry TblMap.t): t =
   {table with tbl = tbl'}
 
 let word_to_string w table =
-  Word.to_symlist w |> Alphabet.w_to_string table.alpha
+  Word.to_string table.alpha w
 
 let print_row rlbl table = 
   word_to_string rlbl table |> Printf.printf "%s ";

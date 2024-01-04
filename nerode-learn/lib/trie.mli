@@ -8,7 +8,7 @@
 open Nerode
 
 type symbol = Alphabet.symbol
-type word = Alphabet.word
+type word = Word.t
 
 (* ['a t] is a map from a prefix-closed set of words into 'a.
    When words are added, the caller provides a callback (of type word -> 'a)

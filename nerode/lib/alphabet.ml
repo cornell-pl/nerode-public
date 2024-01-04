@@ -1,5 +1,4 @@
 type symbol = int
-type word = symbol list
 
 (** Under this reperesentation, each symbol is an index into the
     array of strings. For example if our alphabet is [| "a" ; "b" |] then
@@ -48,45 +47,9 @@ let sym_to_string t x = t.(x)
 let to_string t =
   Array.to_list t |> String.concat " "
   
-let w_to_string (t:t) (w:word) =
-  match w with
-  | [] -> "ε"
-  | _ -> List.fold_left (fun s x -> s^(sym_to_string t x)) "" w
-
 let sym_of_int = Fun.id
 let sym_to_int = Fun.id
 
 let w_of_ints (lst: int list) = lst
 
-let w_to_ints (lst: word) = lst
 
-let ws_of_strings (t:t) s =
-  let rec idx s i =
-    if String.equal t.(i) s then
-      i
-    else
-      idx s (i+1) in
-  let index s = idx s 0 in
-  let rec consume rem acc =
-    match rem with
-    | [] -> acc
-    | hd::tl ->
-      if hd = "X" then (* X is wildcard: add each symbol to every word in acc *)
-        consume tl (List.fold_left (fun a2 w -> 
-              List.fold_left (fun a3 x -> (x::w)::a3) a2 (symbols t)) [] acc)
-      else
-        consume tl (List.map (fun w -> (index hd)::w) acc)
-  in
-  consume (List.rev s) [[]]
-
-let rec prefix_of (s1: word) (s2: word) : bool =
-  match s1, s2 with
-  | [], _ -> true
-  | a::s1_tail, b::s2_tail when a = b -> prefix_of s1_tail s2_tail
-  | _, _ -> false
-
-let rec resid (pre: word) (w: word) : word option =
-  match pre, w with
-  | [], _ -> Some w
-  | a::s1_tail, b::s2_tail when a = b -> resid s1_tail s2_tail
-  | _, _ -> None

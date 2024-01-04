@@ -46,7 +46,7 @@ let load_input fn =
               else
                 Array.of_list a_set' |> Alphabet.of_string_array in
 
-  let f = Alphabet.ws_of_strings alpha in
+  let f = Word.words_of_strings alpha in
   (List.concat (List.map ~f p_str),
    List.concat (List.map ~f n_str), 
    alpha)

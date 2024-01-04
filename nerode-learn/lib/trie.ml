@@ -1,7 +1,7 @@
 open Nerode
 
 type symbol = Alphabet.symbol
-type word = Alphabet.word
+type word = Word.t
 
 module SymOrdered = struct
   type t = Alphabet.symbol

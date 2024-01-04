@@ -1,7 +1,7 @@
 open Core
 
 type symbol = Alphabet.symbol
-type word = Alphabet.word
+type word = Word.t
 
 type t =
   | Empty

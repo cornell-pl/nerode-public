@@ -39,7 +39,7 @@ let query (t: t) (w: word) =
 
 let number_queries (t:t) : int = !(t.query_count)
 
-let resid_by (w: word) (s: WordSet.t) = WordSet.filter_map (Alphabet.resid w) s
+let resid_by (w: word) (s: WordSet.t) = WordSet.filter_map (Word.resid w) s
 
 (* [compute_distinguish t s1 s2] returns (Some suffix) if s1@suffix is in pos
    and s2@suffix is neg or s1@suffix is in neg and s2@suffix is in pos; and

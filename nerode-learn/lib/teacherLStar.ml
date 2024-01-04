@@ -2,7 +2,7 @@
 
 open Nerode
 
-type word = Alphabet.word
+type word = Word.t
 
 type t = Dfa.t
 

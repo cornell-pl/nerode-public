@@ -63,7 +63,7 @@ val difference : t -> t -> t
 val to_string : Alphabet.t -> t -> string
 
 (** Given a word [w], construct a regular expression for [{w}]. *)
-val of_word : Alphabet.word -> t
+val of_word : Word.t -> t
 
 (** Syntactic Brzozowski nullable predicate *)
 val e : t -> bool

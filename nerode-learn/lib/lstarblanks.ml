@@ -101,14 +101,8 @@ module Make (Teacher : Teacher) (Worklist : Worklist.WorklistSig with type conte
 
   type teacher = Teacher.t
   
-  (*conversion between type [word] in Nerode library and [Word.t] in 
-  nerode-learn/lib*)
-  let aword w = w |> Word.to_intlist |> Alphabet.w_of_ints
-
   let query teacher (w : Word.t) : ObsTbl.entry = 
-    (*[aword] conversion is necessary since Word.t and 
-    alphabet.word aren't recognized as the same*)
-    match Teacher.query teacher (aword w) with
+    match Teacher.query teacher w with
     | None -> Blank
     | Some true -> True
     | Some false -> False
@@ -116,9 +110,7 @@ module Make (Teacher : Teacher) (Worklist : Worklist.WorklistSig with type conte
   (*returns [true] if [w1] and [w2] not distinguishable by an added suffix.
   i.e [true] if the teacher can't show they're in different myhill-nerode classes*)
   let distinguish_conc teacher (w1: Word.t) (w2: Word.t) : bool =
-    let aword1 = aword w1 in
-    let aword2 = aword w2 in
-    match Teacher.distinguish_concrete teacher aword1 aword2 with
+    match Teacher.distinguish_concrete teacher w1 w2 with
     | None -> false
     | _ -> true
   
@@ -131,12 +123,6 @@ module Make (Teacher : Teacher) (Worklist : Worklist.WorklistSig with type conte
         ObsTbl.print_table tbl
       end  
 
-  let dump_words (label: string) (s: WordSet.t) : unit =
-    if CliOpt.verbose () then begin
-      Printf.printf "%s: " label;
-      WordSet.iter (Fn.compose (Printf.printf "%s ") Word.to_string) s;
-      Printf.printf "\n%!" end
-  
   (** helper for [lster_blanks]. Returns a worklist, entry map pair.
   The former is a worklist with [wl] plus, for each row in [rows_w_letter] 
   (or for each row in [unsat_cores] if using unsat core optimization), 
@@ -170,8 +156,6 @@ module Make (Teacher : Teacher) (Worklist : Worklist.WorklistSig with type conte
       else (*default case: all lower rows get moved up into their own table*)
         rows_w_letter in
       
-      let () = dump_words "words" words in
-
       let words' = if CliOpt.d_conc_on () then
         (*using strict distiguish query (distinguishes between + and -, 
         but not +/- and blank) to narrow down tables to add*)
@@ -186,7 +170,6 @@ module Make (Teacher : Teacher) (Worklist : Worklist.WorklistSig with type conte
       else
         words in
 
-      let () = dump_words "words'" words' in
       (*folding over lower rows that we're moving up to make tables, that we
       enqueue to worklist, and simultaneously update the entry map [e_map]*)
       RowLabels.fold (fun sa (wl_acc, em_acc) -> 
@@ -213,18 +196,15 @@ module Make (Teacher : Teacher) (Worklist : Worklist.WorklistSig with type conte
   
   (*using distinguish as replacement for validity query for teacher; 
   terminates if the teacher has a finite set of example strings*)
-  let conjecture_by_distinguish table teacher : Alphabet.word option = 
-    let cols = ObsTbl.col_labels table |> ColLabels.elements 
-      (*conversion between type [word] in nerode directory and [Word.t]*)
-      |> List.map (fun e -> e|> Word.to_intlist |> Alphabet.w_of_ints) 
-      |>  TWordSet.of_list in
+  let conjecture_by_distinguish table teacher : Word.t option = 
+    let cols = ObsTbl.col_labels table |> ColLabels.elements |>  TWordSet.of_list in
     ObsTbl.equivalent_pairs table |> List.fold_left 
     (fun acc (urow, lrow) -> match acc with 
-      | None -> Teacher.distinguish teacher (aword urow) (aword lrow) cols
+      | None -> Teacher.distinguish teacher urow lrow cols
       | counterex -> counterex) None
 
   (**Lstar with blanks main loop*)
-  let rec lstar_blanks ((wl : Worklist.t), rows_history, teacher, g_cols, e_map) : Dfa.t = 
+  let rec lstar_blanks (alpha: Alphabet.t) ((wl : Worklist.t), rows_history, teacher, g_cols, e_map) : Dfa.t = 
     let hd_t = Worklist.head wl in
 
     let tbl, e_map = if CliOpt.global_e () then
@@ -259,9 +239,9 @@ module Make (Teacher : Teacher) (Worklist : Worklist.WorklistSig with type conte
       let wl' = Worklist.(wl |> tail |> enqueue tbl') in
       if CliOpt.verbose () then begin 
         Printf.printf "Failed to close even with blanks due to \
-          row [%s]. Enqueued to back of wl:\n%!" (Word.to_string lower_row);
+          row [%s]. Enqueued to back of wl:\n%!" (Word.to_string alpha lower_row);
         ObsTbl.print_table tbl' end;
-      lstar_blanks (wl', rows_history', teacher, g_cols, e_map')
+      lstar_blanks alpha (wl', rows_history', teacher, g_cols, e_map')
 
     | None -> (*attempt to fill balnks with solver*)
       let start = Core_unix.gettimeofday () in
@@ -278,12 +258,11 @@ module Make (Teacher : Teacher) (Worklist : Worklist.WorklistSig with type conte
             if CliOpt.unsat_cores_on () then (*only move up rows in unsat core*)
               begin
               let unsat_core = Solver.get_unsats () in
-              let () = dump_words "Unsat core" unsat_core in
               update_worklist rows_w_letter (Some unsat_core) (query teacher) tbl rows_history' teacher wl e_map
               end
             else (*no unsat core optimization, move up all rows*)
               update_worklist rows_w_letter None (query teacher) tbl rows_history' teacher wl e_map in
-          lstar_blanks (wl_updated, rows_history', teacher, g_cols, e_map')
+          lstar_blanks alpha (wl_updated, rows_history', teacher, g_cols, e_map')
 
         | Some obs -> (*table successfully filled in as [obs]*)
           success_fill := !success_fill + 1;
@@ -319,11 +298,10 @@ module Make (Teacher : Teacher) (Worklist : Worklist.WorklistSig with type conte
           | Some counterex ->
             if CliOpt.verbose () then 
               Printf.printf "Conjecture rejected due to counterexample [%s]:\n%!"
-                Word.(counterex |> of_symlist |> to_string);
+                (Word.to_string alpha counterex);
             let start = Core_unix.gettimeofday () in
             let e = ObsTbl.col_labels tbl in
             let new_suffixes = counterex 
-              |> Alphabet.w_to_ints |> Word.of_intlist 
               |> Word.suffixes 
               (*filter gets rid of suffixes that are already column labels in table.*)
               |> List.filter (fun w -> not (ColLabels.mem w e)) 
@@ -343,19 +321,18 @@ module Make (Teacher : Teacher) (Worklist : Worklist.WorklistSig with type conte
             let g_cols' = ColLabels.union g_cols new_suffixes in
             let () = cols_update_time := 
               !cols_update_time +. (Core_unix.gettimeofday () -. start) in 
-            lstar_blanks (wl', rows_history, teacher, g_cols', e_map'')
+            lstar_blanks alpha (wl', rows_history, teacher, g_cols', e_map'')
   
-  (** Entry point of L* with blanks algorithm.
-  As of now, [alpha] is unused/ignored in the implementation; we assume an 
-  alphabet of {0,1} - [alpha] is there as an parameter just to satisfy the 
-  ActiveLearner mli*)
+  (** Entry point of L* with blanks algorithm. *)
   let learn (alpha : Alphabet.t) teacher = 
     let () = reset_metrics () in
     let learnstart = Core_unix.gettimeofday () in
+
     (* First 1x1 table and initial entry map containg only epsilon *)
     let (tbl, e_map) : ObsTbl.t * ObsTbl.entry EntryMap.t =
       ObsTbl.init_epsilon alpha (query teacher) in
-    (*Worklist is implemented either as a list of tables (type ObsTbl.t) in 
+
+    (* Worklist is implemented either as a list of tables (type ObsTbl.t) in 
     default setting, or as a priority queue of tables in priority queue 
     hueristic optimization*)
     let wl : Worklist.t = Worklist.(empty |> enqueue tbl) in
@@ -371,7 +348,7 @@ module Make (Teacher : Teacher) (Worklist : Worklist.WorklistSig with type conte
     tables*)
     let g_cols = ColLabels.empty in
 
-    let dfa = lstar_blanks (wl, rows_history, teacher, g_cols, e_map) in
+    let dfa = lstar_blanks alpha (wl, rows_history, teacher, g_cols, e_map) in
     let () = learntime := (*total amount of time it took to learn dfa*)
               !learntime +. (Core_unix.gettimeofday () -. learnstart) in
     let () = print_metrics (Dfa.size dfa) (Teacher.number_queries teacher) () in

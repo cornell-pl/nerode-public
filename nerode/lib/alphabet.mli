@@ -3,9 +3,6 @@
 (** A single symbol in an alphabet. *)
 type symbol
 
-(** A finite sequence of symbols. *)
-type word = symbol list
-
 (** An alphabet: a finite collection of symbols. *)
 type t
 
@@ -38,12 +35,6 @@ val fold :  ('a->symbol->'a) -> 'a -> t -> 'a
     [x1, x2, ...] in [alpha]. *)
 val map : (symbol->'a) -> t -> 'a list
 
-(** [prefix_of w1 w2] returns [true] if [w1 = w2@suffix] for some (possibly
-    empty) word [suffix]. *)
-val prefix_of : word -> word -> bool
-
-(** [resid pre w] returns [Some s] if [w = pre@s]. Otherwise returns [None]. *)
-val resid : word -> word -> word option
 
 (** Serialize to S-Expression. *)
 val sym_of_sexp : Core.Sexp.t -> symbol
@@ -69,24 +60,9 @@ val sym_to_string : t -> symbol -> string
 (** Convert an alphabet to its string representation. *)
 val to_string : t -> string
 
-(** Convert a word (of alphabet symbols) to its string representation. *)
-val w_to_string : t -> word -> string
-
 (** Convert (injectively) a symbol to an integer. *)
 val sym_to_int : symbol -> int
 
 (** Convert an integer to a symbol. It is an error to convert an integer greater
     than or equal to the size of the alphabet. *)
 val sym_of_int : int -> symbol
-
-(** Form a word from a list of integers. *)
-val w_of_ints : int list -> word
-
-(** Convert a word to a list of integers. *)
-val w_to_ints : word -> int list
-
-(** Form a list of words from a list of strings. Each string in the list corresponds to a
-    single alphabet symbol, except that the character 'X' is a wildcard.
-    That is, for example, for the alphabet \{0, 1\}, [ws_of_strings alphabet
-    [["0"; "X"]] converts to the words [[0;0]] and [[0;1]]. *)
-val ws_of_strings : t -> string list -> word list

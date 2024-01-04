@@ -5,7 +5,7 @@
 type symbol = Alphabet.symbol
 
 (** Use the Alphabet word type. *)
-type word = Alphabet.word
+type word = Word.t
 
 (** Transitions are labeled by a symbol or epsilon *)
 type nsymbol = Char of symbol | Eps

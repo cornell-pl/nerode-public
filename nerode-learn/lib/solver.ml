@@ -3,7 +3,7 @@
 open Core
 open Nerode
 
-type word = Alphabet.word 
+type word = Word.t
 
 module WordSet = ObsTbl.WordSet
 module RowLabels = ObsTbl.RowLabels
@@ -151,7 +151,7 @@ let min_rows s_rows sa_rows =
     List.fold_left rows ~init:(bool_to_term true) ~f:(fun a r -> and_ a (not_ (equals (lookup r) (lookup si)))) in
 
   let u = List.foldi s ~init:[] ~f:(fun i a si ->
-    let uid = "u"^(to_string (Alphabet.w_to_ints si)) in
+    let uid = "u"^(to_string (Word.to_intlist si)) in
     declare_const solver (Id uid) int_sort;
     let ui = const uid in
     let ui_unique = si_uniq s i si in
