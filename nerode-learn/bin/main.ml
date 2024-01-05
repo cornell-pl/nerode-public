@@ -15,6 +15,18 @@ module WLSPQ = Lstarblanks.Make(TeacherIndifferent)(Worklist.WorklistPQ)
 module WLSepDef = Lstarblanks.Make(TeacherSep)(Worklist.WorklistDefault)
 module WLSepPQ = Lstarblanks.Make(TeacherSep)(Worklist.WorklistPQ)
 
+module KVD = Kv.Make(TeacherLStar)
+
+let kv_from_rx r () =
+  let alpha = Alphabet.intalph 2 in
+  let teacher = Parser.parse_string r
+                |> Dfa.of_rx alpha
+                |> TeacherLStar.make in
+  let d = KVD.learn alpha teacher in
+  Dfa.print d;
+  Printf.printf "Dfa size: %d\n%!" (Dfa.size d);
+  Printf.printf "%s\n%!" (Dfa.to_rx d |> Rx.to_string alpha)
+
 let learn_from_sep_rx r1 r2 () =
   let alpha = Alphabet.intalph 2 in
   let rx1 = Parser.parse_string r1 in
@@ -90,6 +102,14 @@ let learn_from_dir_examples v tex uniq sc dist db ge pq (csv:bool) dn () =
 
           learn_from_examples v tex uniq sc dist db ge pq csv (dn^"/"^fn) ())
 
+let kvrx_cmd =
+  let open Command.Spec in
+  Command.basic_spec
+    ~summary: "Run KV using a teacher built from a Rx"
+    (empty
+    +> anon ("rx" %: string))
+    kv_from_rx
+
 let lsb_sep_cmd =
   let open Command.Spec in
   Command.basic_spec
@@ -140,6 +160,7 @@ let main : Command.t =
      ("lsblanks", lsb_cmd);
      ("lsblanks-dir", lsb_dir_cmd);
      ("lsblanks-sep", lsb_sep_cmd);
+     ("kv", kvrx_cmd);
     ]
 
 let () = Command_unix.run ~version: "0.1.1" main

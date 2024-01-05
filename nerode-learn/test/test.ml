@@ -25,14 +25,12 @@ let word_tests = [
 module TI = TeacherIndifferent
 
 let mk_teacher fn = 
+  let () = Printf.printf "%s\n%!" (Unix.getcwd ()) in
   let (pos, neg, alpha) = InputReader.load_input fn in
-  (*
-  Printf.printf "%s\n%!" (Unix.getcwd ());
-  *)
   TI.make pos neg 
 
-let teacher1 = mk_teacher "./tomita_t1"
-let teacher3 = mk_teacher "./tomita_t3"
+let teacher1 = mk_teacher "tomita_t1"
+let teacher3 = mk_teacher "tomita_t3"
 
 let alpha01 = Alphabet.intalph 2
 
@@ -40,15 +38,15 @@ let failed_conj = function
   | Some _ -> true
   | None -> false
 
-let aw1111 = Alphabet.w_of_ints [1;1;1;1]
-let aw0 = Alphabet.w_of_ints [0]
-let aw1 = Alphabet.w_of_ints [1]
-let aw00 = Alphabet.w_of_ints [0;0]
-let aw010 = Alphabet.w_of_ints [0;1;0]
-let aw10 = Alphabet.w_of_ints [1;0]
-let aw1010 = Alphabet.w_of_ints [1;0;1;0]
-let aw100 = Alphabet.w_of_ints [1;0;0]
-let aweps = Alphabet.w_of_ints []
+let aw1111 = Word.of_intlist [1;1;1;1]
+let aw0 = Word.of_intlist [0]
+let aw1 = Word.of_intlist [1]
+let aw00 = Word.of_intlist [0;0]
+let aw010 = Word.of_intlist [0;1;0]
+let aw10 = Word.of_intlist [1;0]
+let aw1010 = Word.of_intlist [1;0;1;0]
+let aw100 = Word.of_intlist [1;0;0]
+let aweps = Word.epsilon
 
 let teacher_tests = [
   TI.(test "teacher query pos" (Some true) (query teacher1 aw1111));
@@ -63,9 +61,8 @@ let teacher_tests = [
       (distinguish teacher1 aw0 aw00 WordSet.empty |> Option.is_some));
 ]
 
-let aword w = w |> Word.to_intlist |> Alphabet.w_of_ints
 let query teacher (w : Word.t) : ObsTbl.entry = 
-  match TI.query teacher (aword w) with
+  match TI.query teacher w with
   | None -> Blank
   | Some true -> True
   | Some false -> False
@@ -81,5 +78,3 @@ let tests =
   ]
 
 let _ = run_test_tt_main tests
-
-

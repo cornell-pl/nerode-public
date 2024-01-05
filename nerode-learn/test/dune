@@ -1,5 +1,6 @@
 (tests
  (names test)
  (libraries nerodelearn nerode ounit2)
+ (deps tomita_t1 tomita_t3)
  (action
   (run %{test})))

@@ -33,6 +33,7 @@ type 'a regular = { eq: 'a -> 'a -> bool;
     Generalizes (Owens, Reppy, Turon; JFP 2009) approach for Rx->Dfa conversion. *)
 val mk_dfa : 'a regular -> Alphabet.t -> 'a -> t
 
+(** Perform comparison on states. *)
 val compare_states : state -> state -> int
 
 (** Return the number of states of the DFA *)
@@ -47,6 +48,10 @@ val get_start : t -> state
 (** [step dfa q x] returns the state the DFA would be in after proceeding by
     symbol [x] from state [q]. *)
 val step : t -> state -> symbol -> state
+
+(** [step dfa q w] returns the state the DFA would be in after processing
+    word [w] from state [q]. *)
+val steps : t -> state -> word -> state
 
 (** Return whether the given state is a final state. *)
 val accepting : t -> state -> bool
@@ -91,22 +96,22 @@ val minimize : t -> t
     define transitions for all symbols. *)
 val of_rx : Alphabet.t -> Rx.t -> t
 
-(* Construct a Regular Expression representing the language of the DFA. *)
+(** Construct a Regular Expression representing the language of the DFA. *)
 val to_rx : t -> Rx.t
 
-(* Construct a DFA recognizing the union of the languages of two DFAs. *)
+(** Construct a DFA recognizing the union of the languages of two DFAs. *)
 val union : t -> t -> t
 
-(* Construct a DFA recognizing the intersection of the languages of two DFAs. *)
+(** Construct a DFA recognizing the intersection of the languages of two DFAs. *)
 val intersect : t -> t -> t
 
-(* Construct a DFA recognizing the language of the first DFA minus the language of
+(** Construct a DFA recognizing the language of the first DFA minus the language of
    the second DFA. *)
 val diff : t -> t -> t
 
-(* Construct a DFA recognizing the union of the languages of two DFAs. *)
+(** Construct a DFA recognizing the union of the languages of two DFAs. *)
 val symdiff : t -> t -> t
 
-(* Construct a DFA recognizing all strings which are either accepted by both
-   DFAs or rejected by both DFAs. *)
+(** Construct a DFA recognizing all strings which are either accepted by both
+    DFAs or rejected by both DFAs. *)
 val equiv : t -> t -> bool

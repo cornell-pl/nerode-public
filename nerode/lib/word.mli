@@ -10,6 +10,10 @@ val compare : t -> t -> int
 (** [epsilon] is the empty string ε*)
 val epsilon : t
 
+(** [prefixes w] returns a list of the prefixes of [w], including epsilon. For example,
+    prefixes HELLO would return [[]; H; HE; HEL; HELL; HELLO] *)
+val prefixes : t -> t list 
+
 (** [suffixes w] takes a word [w] and returns a list of the suffixes of [w],
 including epsilon, with the suffixes being type Word.t. 
 For example, suffixes HELLO would return [HELLO; ELLO; LLO; LO; O; []]*)

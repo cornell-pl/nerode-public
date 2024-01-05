@@ -50,19 +50,22 @@ let mk_dfa (r: 'a regular) (alpha: Alphabet.t) (start:'a) : t =
     final = f
   }
 
-let compare_states = Int.compare let size (dfa: t) = Array.length dfa.trans
+let compare_states = Int.compare
+let size (dfa: t) = Array.length dfa.trans
 let get_alpha (dfa: t) = dfa.alpha
 let get_start (dfa: t) = 0
 
 let step (dfa: t) (s: state) (a: symbol) =
   dfa.trans.(s).(Alphabet.sym_to_int a)
 
+let steps (dfa: t) (s: state) (w: word) =
+  List.fold_left (step dfa) s w
+
 let accepting (dfa: t) (s: state) =
   dfa.final.(s)
 
 let accept (dfa: t) (w: word) =
-  let qf = List.fold_left (step dfa) 0 w in
-  dfa.final.(qf)
+  steps dfa (get_start dfa) w |> accepting dfa
 
 let validate (d: t) (pos: word list) (neg: word list) : bool =
   not (List.exists (fun s -> not (accept d s)) pos) &&

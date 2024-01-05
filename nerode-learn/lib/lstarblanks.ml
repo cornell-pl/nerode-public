@@ -1,6 +1,5 @@
 (** Implementation of L* with Blanks algorithm. *)
 
-open Core
 open Teacher
 open ActiveLearner
 open Stdlib

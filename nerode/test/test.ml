@@ -4,8 +4,8 @@ open Nerode
 
 (* More tests might be appropriate..*)
 
-let w001 = Alphabet.w_of_ints [0;0;1]
-let w10 = Alphabet.w_of_ints [1;0]
+let w001 = Word.of_intlist [0;0;1]
+let w10 = Word.of_intlist [1;0]
 
 let rx001 = Rx.of_word w001
 let rx10 = Rx.of_word w10
